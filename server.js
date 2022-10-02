@@ -1,3 +1,4 @@
+// Import dependencies
 const mysql = require('mysql2');
 const inquirer = require('inquirer');
 require('console.table');
@@ -11,25 +12,28 @@ const db = mysql.createConnection(
         password: '',
         database: 'employee_db'
     },
-    console.log(`Connected to the employee_db database.`)
+    console.log(`\nConnected to the employee_db database.\n`)
 )
 
+// Catch errors, then run afterConnection()
 db.connect(err => {
     if (err) throw err;
-    affterConnection();
+    afterConnection();
 })
 
-affterConnection = () => {
-    console.log('****************************');
+// Once connected to db run prompts
+afterConnection = () => {
+    console.log('\n****************************');
     console.log('*                          *');
     console.log('*     EMPLOYEE MANAGER     *');
     console.log('*                          *');
-    console.log('****************************');
+    console.log('****************************\n');
 
-    startApp();
+    runPrompts();
 };
 
-const startApp = () => {
+// User prompts
+const runPrompts = () => {
     inquirer
         .prompt([
             {
@@ -44,6 +48,7 @@ const startApp = () => {
                     'Add Role',
                     'Add Employees',
                     'Update Employee Role',
+                    'EXIT'
                 ],
             }
         ])
@@ -77,32 +82,89 @@ const startApp = () => {
             if (choices === 'Update Employee Role') {
                 updateEmployee();
             }
+
+            // End connection to db, and stop prompts if user clicks 'EXIT'
+            if (choices === 'EXIT') {
+                db.end()
+            }
         })
         .catch((err) => {
             if (err) throw err;
         });
-}
+};
 
-//function to view all departments
-viewDepartments = () => { }
+// function to view all departments
+viewDepartments = () => {
+    // SELECT everything form department table
+    const sql = `SELECT * FROM department`;
+    // SQL query
+    db.query(sql, function (err, res) {
+        if (err) throw err;
+        // Show table in terminal
+        console.table('\nAll Departments:\n', res);
+        runPrompts();
+    })
+};
 
-//function to view all roles
-viewRoles = () => { }
 
-//function to view all employees 
-viewEmployees = () => { }
+// function to view all roles
+viewRoles = () => {
+    var query = `SELECT role.id, role.title, role.salary, department.name AS department 
+                        FROM role 
+                        INNER JOIN department ON role.department_id = department.id`;
+    db.query(query, function (err, res) {
+        if (err) throw err;
+        console.table('\nAll Roles:\n', res);
+        runPrompts();
+    })
+};
 
-//function to add a department
-addDepartment = () => { }
+// function to view all employees 
+viewEmployees = () => {
+    const sql = `SELECT employee.id, employee.first_name, employee.last_name, role.title,
+                        department.name AS department, 
+                        role.salary,
+                        CONCAT (manager.first_name, " ", manager.last_name) AS manager
+                        FROM employee
+                        LEFT JOIN role ON employee.role_id = role.id
+                        LEFT JOIN department ON role.department_id = department.id
+                        LEFT JOIN employee manager ON employee.manager_id = manager.id`;
+    db.query(sql, function (err, res) {
+        if (err) throw err;
+        console.table('\nAll Employees:\n', res);
+        runPrompts();
+    })
+};
 
-//function to add a role
-addRole = () => { }
+// function to add a department
+addDepartment = () => {
 
-//function to add an employee
-addEmployee = () => { }
 
-//function to update an employee role
-updateEmployee = () => { }
+
+    console.log('Added' + + ' to departments')
+    runPrompts();
+};
+
+// function to add a role
+addRole = () => {
+
+    console.log('Added' + + ' to roles')
+    runPrompts();
+};
+
+// function to add an employee
+addEmployee = () => {
+
+    console.log('New employee successfully added!')
+    runPrompts();
+};
+
+// function to update an employee role
+updateEmployee = () => {
+
+    console.log('Employee has been updated!')
+    runPrompts();
+};
 
 
 
