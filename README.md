@@ -39,4 +39,5 @@ This project was completed through the University of Minesota Coding Bootcamp
 * [inquirer](https://www.npmjs.com/package/inquirer)
 * [MySQL FOREIGN KEY Constraints](https://dev.mysql.com/doc/refman/8.0/en/create-table-foreign-keys.html)
 * [MySQL2](https://www.npmjs.com/package/mysql2)
-* []()
+* [JOIN Clause](https://dev.mysql.com/doc/refman/8.0/en/join.html)
+* [console.table](https://github.com/bahmutov/console.table)
