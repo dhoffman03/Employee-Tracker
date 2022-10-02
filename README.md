@@ -36,7 +36,7 @@ For detailed information about this license, go to https://mit-license.org/.
 This project was completed through the University of Minesota Coding Bootcamp
 
 ## Refrences
-* []()
-* []()
-* []()
+* [inquirer](https://www.npmjs.com/package/inquirer)
+* [MySQL FOREIGN KEY Constraints](https://dev.mysql.com/doc/refman/8.0/en/create-table-foreign-keys.html)
+* [MySQL2](https://www.npmjs.com/package/mysql2)
 * []()
