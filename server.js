@@ -169,7 +169,7 @@ addDepartment = () => {
             const sql = `INSERT INTO department (name) VALUES (?)`;
             db.query(sql, answer.addDept, (err, res) => {
                 if (err) throw err;
-                console.log('\nSuccessfully added' + answer.addDept + ' to departments\n')
+                console.log('\nSuccessfully added ' + answer.addDept + ' to departments\n')
 
                 // viewDepartments();
                 runPrompts();
@@ -225,7 +225,7 @@ addRole = () => {
 
                         db.query(sql, params, (err, res) => {
                             if (err) throw err;
-                            console.log('\nSuccessfully added' + answer.role + ' to roles\n')
+                            console.log('\nSuccessfully added ' + answer.role + ' to roles\n')
 
                             // viewRoles();
                             runPrompts();
