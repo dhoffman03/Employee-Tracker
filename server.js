@@ -142,7 +142,7 @@ addDepartment = () => {
         {
             type: 'input',
             name: 'addDept',
-            message: 'Enter the department you would like to add.',
+            message: 'Please enter the department you would like to add.',
             validate: addDept => {
                 if (addDept) {
                     return true;
@@ -154,9 +154,9 @@ addDepartment = () => {
         }
 
     ])
+        // INSERT new department to table
         .then((answer) => {
-            const sql = `INSERT INTO department (name)
-                        VALUES (?)`;
+            const sql = `INSERT INTO department (name) VALUES (?)`;
             db.query(sql, answer.addDept, (err, res) => {
                 if (err) throw err;
                 console.log('Successfully added' + answer.addDept + ' to departments')
@@ -169,16 +169,149 @@ addDepartment = () => {
 
 // function to add a role
 addRole = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'role',
+            message: 'Please enter the role you would like to add.',
+            validate: role => {
+                if (role) {
+                    return true;
+                } else {
+                    console.log('Please enter a role');
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'salary',
+            message: 'What is the salary of this role?',
+        }
+    ])
+        .then((answer) => {
+            const params = [answer.role, answer.salary];
+            // Get dept from department table
+            const roleSql = `SELECT name, id FROM department`;
 
-    console.log('Successfully added' + + ' to roles')
-    runPrompts();
+            db.query(roleSql, (err, data) => {
+                if (err) throw err;
+                const dept = data.map(({ name, id }) => ({ name: name, value: id }));
+
+                inquirer.prompt([
+                    {
+                        type: 'list',
+                        name: 'dept',
+                        message: 'What department does this role belong to?',
+                        choices: dept
+                    }
+                ])
+                    .then(deptChoice => {
+                        const dept = deptChoice.dept;
+                        params.push(dept);
+
+                        // INSERT new role to table
+                        const sql = `INSERT INTO role (title, salary, department_id) VALUES(?, ?, ?)`;
+
+                        db.query(sql, params, (err, res) => {
+                            if (err) throw err;
+                            console.log('Successfully added' + answer.role + ' to roles')
+
+                            viewRoles();
+                            runPrompts();
+                        })
+                    })
+            })
+        })
 };
 
 // function to add an employee
 addEmployee = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'firstName',
+            message: "Please enter the employee's first name",
+            validate: addFirst => {
+                if (addFirst) {
+                    return true;
+                } else {
+                    console.log('Please enter a first name');
+                    return false;
+                }
+            }
+        },
+        {
+            type: 'input',
+            name: 'lastName',
+            message: "Please enter the employee's last name",
+            validate: addLast => {
+                if (addLast) {
+                    return true;
+                } else {
+                    console.log('Please enter a last name');
+                    return false;
+                }
+            }
+        },
+    ])
+        .then((answer) => {
+            const params = [answer.firstName, answer.lastName];
 
-    console.log('New employee successfully added!')
-    runPrompts();
+            // Grab roles
+            const roleSql = `SELECT role.id, role.title FROM role`;
+
+            db.query(roleSql, (err, data) => {
+                if (err) throw err;
+                const roles = data.map(({ title, id }) => ({ name: title, value: id }));
+
+                // Get employee's role
+                inquirer.prompt([
+                    {
+                        type: 'list',
+                        name: 'role',
+                        message: "What is the employee's role?",
+                        choices: roles
+                    }
+                ])
+                    .then(roleChoice => {
+                        const role = roleChoice.role;
+                        params.push(role);
+
+                        const managerSql = `SELECT * FROM employee`;
+
+                        db.query(managerSql, (err, data) => {
+                            if (err) throw err;
+                            const managers = data.map(({ id, first_name, last_name }) => ({ name: first_name + " " + last_name, value: id }));
+
+                            // Get employee's manager
+                            inquirer.prompt([
+                                {
+                                    type: 'list',
+                                    name: 'manager',
+                                    message: "Who is the employee's manager?",
+                                    choices: managers
+                                }
+                            ])
+                                .then(maagerChoice => {
+                                    const manager = maagerChoice.manager;
+                                    params.push(manager)
+
+                                    // Add new employee to table
+                                    const sql = `INSERT INTO employee (first_name, last_name, role_id, manager_id) VALUES(?, ?, ?, ?)`;
+
+                                    db.query(sql, params, (err, res) => {
+                                        if (err) throw err;
+                                        console.log('New employee successfully added!')
+
+                                        viewEmployees();
+                                        runPrompts();
+                                    })
+                                })
+                        })
+                    })
+            })
+        })
 };
 
 // function to update an employee role
