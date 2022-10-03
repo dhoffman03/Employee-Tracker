@@ -98,7 +98,7 @@ viewDepartments = () => {
     // SELECT everything form department table
     const sql = `SELECT * FROM department`;
     // SQL query
-    db.query(sql, function (err, res) {
+    db.query(sql, (err, res) => {
         if (err) throw err;
         // Show table in terminal
         console.table('\nAll Departments:\n', res);
@@ -112,7 +112,7 @@ viewRoles = () => {
     var query = `SELECT role.id, role.title, role.salary, department.name AS department 
                         FROM role 
                         INNER JOIN department ON role.department_id = department.id`;
-    db.query(query, function (err, res) {
+    db.query(query, (err, res) => {
         if (err) throw err;
         console.table('\nAll Roles:\n', res);
         runPrompts();
@@ -129,7 +129,7 @@ viewEmployees = () => {
                         LEFT JOIN role ON employee.role_id = role.id
                         LEFT JOIN department ON role.department_id = department.id
                         LEFT JOIN employee manager ON employee.manager_id = manager.id`;
-    db.query(sql, function (err, res) {
+    db.query(sql, (err, res) => {
         if (err) throw err;
         console.table('\nAll Employees:\n', res);
         runPrompts();
@@ -138,17 +138,39 @@ viewEmployees = () => {
 
 // function to add a department
 addDepartment = () => {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'addDept',
+            message: 'Enter the department you would like to add.',
+            validate: addDept => {
+                if (addDept) {
+                    return true;
+                } else {
+                    console.log('Please enter a department');
+                    return false;
+                }
+            }
+        }
 
+    ])
+        .then((answer) => {
+            const sql = `INSERT INTO department (name)
+                        VALUES (?)`;
+            db.query(sql, answer.addDept, (err, res) => {
+                if (err) throw err;
+                console.log('Successfully added' + answer.addDept + ' to departments')
 
-
-    console.log('Added' + + ' to departments')
-    runPrompts();
+                viewDepartments();
+                runPrompts();
+            })
+        })
 };
 
 // function to add a role
 addRole = () => {
 
-    console.log('Added' + + ' to roles')
+    console.log('Successfully added' + + ' to roles')
     runPrompts();
 };
 
